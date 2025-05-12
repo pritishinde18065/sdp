@@ -1,0 +1,179 @@
+class Turkey:
+    def gobble(self):
+        print("Gobble gobble!")
+
+class Duck:
+    def quack(self):
+        print("Quack quack!")
+
+#We can create an `Adapter` class that makes a `Turkey` object look like a `Duck` object:
+
+class TurkeyAdapter(Duck):
+    def __init__(self, turkey):
+        self.turkey = turkey
+
+    def quack(self):
+        self.turkey.gobble()
+
+#Now we can use a `Turkey` object as if it were a `Duck` object:
+
+turkey = Turkey()
+duck = TurkeyAdapter(turkey)
+duck.quack()  # Output: Gobble gobble!
+
+duck1 = Duck()
+duck1.quack()
+
+
+
+
+
+
+from abc import ABC, abstractmethod
+
+# Target interface
+class PaymentGateway(ABC):
+    @abstractmethod
+    def process_payment(self, amount):
+        pass
+
+# Adaptee interface
+class BankAPI:
+    def pay(self, amount):
+        print(f"Paid {amount} using bank API")
+
+# Adapter class
+class BankAdapter(PaymentGateway):
+    def __init__(self, bank_api):
+        self.bank_api = bank_api
+
+    def process_payment(self, amount):
+        self.bank_api.pay(amount)
+
+# Client class
+class WebShop:
+    def __init__(self, payment_gateway):
+        self.payment_gateway = payment_gateway
+
+    def purchase(self, amount):
+        self.payment_gateway.process_payment(amount)
+
+# Usage
+bank_api = BankAPI()
+bank_adapter = BankAdapter(bank_api)
+web_shop = WebShop(bank_adapter)
+web_shop.purchase(100)  # Output: Paid 100 using bank API
+
+
+
+
+
+
+
+
+
+
+
+
+
+class XMLParser:
+    def parse_xml(self):
+        print("Parsing XML data...")
+
+
+class JSONProcessor:
+    def process_json(self):
+        print("Processing JSON data...")
+
+
+
+
+class XMLToJSONAdapter(JSONProcessor):
+    def __init__(self, xml_parser):
+        self.xml_parser = xml_parser
+
+
+    def process_json(self):
+       
+        print("Converting XML to JSON...")
+        self.xml_parser.parse_xml()
+
+
+
+
+xml_parser = XMLParser()
+json_processor = XMLToJSONAdapter(xml_parser)
+json_processor.process_json()  
+
+
+json_proc = JSONProcessor()
+json_proc.process_json()
+
+
+
+
+
+class MicroUSB:
+    def charge(self):
+        print("Charging with MicroUSB...")
+
+
+class USB_C:
+    def charge(self):
+        print("Charging with USB-C...")
+
+
+class USBAdapter(USB_C):
+    def __init__(self, micro_usb):
+        self.micro_usb = micro_usb
+
+
+    def charge(self):
+        print("Adapting MicroUSB to USB-C...")
+        self.micro_usb.charge()
+
+
+# Usage
+usb_micro = MicroUSB()
+adapter = USBAdapter(usb_micro)
+adapter.charge()  
+                 
+
+
+usb_c = USB_C()
+usb_c.charge()    
+
+
+
+
+
+
+
+
+class LegacyLogger:
+    def log_message(self, message):
+        print(f"Legacy: {message}")
+
+
+class Logger:
+    def log(self, level, message):
+        print(f"[{level}] {message}")
+
+
+class LegacyLoggerAdapter(Logger):
+    def __init__(self, legacy_logger):
+        self.legacy = legacy_logger
+
+
+    def log(self, level, message):
+        self.legacy.log_message(f"[{level}] {message}")
+
+
+# Usage
+legacy = LegacyLogger()
+logger = LegacyLoggerAdapter(legacy)
+logger.log("INFO", "System started")
+
+
+real_logger = Logger()
+real_logger.log("ERROR", "Critical failure")
