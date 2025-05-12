@@ -1,0 +1,219 @@
+from abc import ABC, abstractmethod
+
+
+class Car(ABC):
+    @abstractmethod
+    def assemble(self):
+        pass
+
+
+class BasicCar(Car):
+    def assemble(self):
+        print("Basic Car.", end='')
+
+
+class CarDecorator(Car):
+    def __init__(self, car):
+        self.car = car
+   
+    def assemble(self):
+        self.car.assemble()
+
+
+class SportsCar(CarDecorator):
+    def assemble(self):
+        super().assemble()
+        print(" Adding features of Sports Car.", end='')
+
+
+class LuxuryCar(CarDecorator):
+    def assemble(self):
+        super().assemble()
+        print(" Adding features of Luxury Car.", end='')
+
+
+# Test the implementation
+if __name__ == "__main__":
+    sports_car = SportsCar(BasicCar())
+    sports_car.assemble()
+    print("\n*****")
+   
+    sports_luxury_car = SportsCar(LuxuryCar(BasicCar()))
+    sports_luxury_car.assemble()
+
+
+
+
+
+
+
+
+
+class Pizza:
+    def getDescription(self):
+        pass
+
+
+    def getCost(self):
+        pass
+
+
+
+
+class PlainPizza(Pizza):
+    def getDescription(self):
+        return "Plain Pizza"
+
+
+    def getCost(self):
+        return 5.0
+
+
+
+
+class PizzaDecorator(Pizza):
+    def __init__(self, pizza):
+        self.decoratedPizza = pizza
+
+
+    def getDescription(self):
+        return self.decoratedPizza.getDescription()
+
+
+    def getCost(self):
+        return self.decoratedPizza.getCost()
+
+
+
+
+class CheeseDecorator(PizzaDecorator):
+    def __init__(self, pizza):
+        super().__init__(pizza)
+
+
+    def getDescription(self):
+        return self.decoratedPizza.getDescription() + ", Cheese"
+
+
+    def getCost(self):
+        return self.decoratedPizza.getCost() + 1.5
+
+
+
+
+class PepperoniDecorator(PizzaDecorator):
+    def __init__(self, pizza):
+        super().__init__(pizza)
+
+
+    def getDescription(self):
+        return self.decoratedPizza.getDescription() + ", Pepperoni"
+
+
+    def getCost(self):
+        return self.decoratedPizza.getCost() + 2.0
+
+
+
+
+if __name__ == "__main__":
+    pizza = PlainPizza()
+    pizza = CheeseDecorator(pizza)
+    pizza = PepperoniDecorator(pizza)
+
+
+    print("Description: " + pizza.getDescription())
+    print("Cost: $" + str(pizza.getCost()))
+
+
+
+
+
+
+
+
+
+
+
+
+class SlotMachine:
+    def getPayout(self):
+        pass
+
+
+    def getDescription(self):
+        pass
+
+
+
+
+class BasicSlotMachine(SlotMachine):
+    def getPayout(self):
+        return 10.0  # Base payout value
+
+
+    def getDescription(self):
+        return "Basic Slot Machine"
+
+
+
+
+class SlotMachineDecorator(SlotMachine):
+    def __init__(self, slotMachine):
+        self.decoratedSlotMachine = slotMachine
+
+
+    def getPayout(self):
+        return self.decoratedSlotMachine.getPayout()
+
+
+    def getDescription(self):
+        return self.decoratedSlotMachine.getDescription()
+
+
+
+
+class MultiplierDecorator(SlotMachineDecorator):
+    def __init__(self, slotMachine):
+        super().__init__(slotMachine)
+        self.multiplier = 2.0
+        self.spinLimit = 5
+        self.spinsRemaining = self.spinLimit
+
+
+    def getPayout(self):
+        basePayout = self.decoratedSlotMachine.getPayout()
+
+
+        if self.spinsRemaining > 0:
+            multipliedPayout = basePayout * self.multiplier
+            self.spinsRemaining -= 1
+            return multipliedPayout
+
+
+        return basePayout
+
+
+    def getDescription(self):
+        status = " (active)" if self.spinsRemaining > 0 else " (expired)"
+        return self.decoratedSlotMachine.getDescription() + f", 2x Bonus{status}"
+
+
+
+
+if __name__ == "__main__":
+    # Create basic slot machine
+    machine = BasicSlotMachine()
+
+
+    # Add temporary multiplier
+    machine = MultiplierDecorator(machine)
+
+
+    # Simulate 7 spins (2 beyond the limit)
+    for i in range(7):
+        print(f"Spin {i+1}:")
+        print("Description:", machine.getDescription())
+        print(f"Payout: ${machine.getPayout():.2f}")
+        print()
+
