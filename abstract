@@ -1,5 +1,193 @@
 from abc import ABC, abstractmethod
 
+# Abstract Products
+class Garment(ABC):
+    @abstractmethod
+    def describe(self) -> str:
+        pass
+
+class Gadget(ABC):
+    @abstractmethod
+    def specs(self) -> str:
+        pass
+
+# Concrete Garments
+class Trouser(Garment):
+    def describe(self) -> str:
+        return "Classic-fit trousers"
+
+class Shirt(Garment):
+    def describe(self) -> str:
+        return "Premium cotton shirt"
+
+# Concrete Gadgets
+class Smartwatch(Gadget):
+    def specs(self) -> str:
+        return "Water-resistant smartwatch"
+
+class Earbuds(Gadget):
+    def specs(self) -> str:
+        return "Noise-cancelling earbuds"
+
+# Abstract Factory
+class Factory(ABC):
+    @abstractmethod
+    def create_garment(self) -> Garment:
+        pass
+    
+    @abstractmethod
+    def create_gadget(self) -> Gadget:
+        pass
+
+# US Concrete Factory
+class USFactory(Factory):
+    def create_garment(self) -> Garment:
+        return Trouser()
+    
+    def create_gadget(self) -> Gadget:
+        return Smartwatch()
+
+# UK Concrete Factory
+class UKFactory(Factory):
+    def create_garment(self) -> Garment:
+        return Shirt()
+    
+    def create_gadget(self) -> Gadget:
+        return Earbuds()
+
+# Client Code
+class RetailStore:
+    def __init__(self, factory: Factory):
+        self.garment = factory.create_garment()
+        self.gadget = factory.create_gadget()
+    
+    def show_products(self):
+        print(f"Garment: {self.garment.describe()}")
+        print(f"Gadget: {self.gadget.specs()}")
+
+# Usage
+print("US Store Products:")
+us_store = RetailStore(USFactory())
+us_store.show_products()
+
+print("\nUK Store Products:")
+uk_store = RetailStore(UKFactory())
+uk_store.show_products()
+
+
+
+
+
+
+
+
+
+
+
+
+
+from abc import ABC, abstractmethod
+
+# Abstract Products
+class SavingsAccount(ABC):
+    @abstractmethod
+    def calculate_interest(self) -> float:
+        pass
+
+class CurrentAccount(ABC):
+    @abstractmethod
+    def calculate_fee(self) -> float:
+        pass
+
+# Concrete Products - India
+class IndiaSavingsAccount(SavingsAccount):
+    def calculate_interest(self) -> float:
+        return 0.04  # 4% interest
+    
+    def __str__(self):
+        return "Indian Savings Account (4% interest)"
+
+class IndiaCurrentAccount(CurrentAccount):
+    def calculate_fee(self) -> float:
+        return 200  # ₹200 fee
+    
+    def __str__(self):
+        return "Indian Current Account (₹200 fee)"
+
+# Concrete Products - Canada
+class CanadaSavingsAccount(SavingsAccount):
+    def calculate_interest(self) -> float:
+        return 0.02  # 2% interest
+    
+    def __str__(self):
+        return "Canadian Savings Account (2% interest)"
+
+class CanadaCurrentAccount(CurrentAccount):
+    def calculate_fee(self) -> float:
+        return 5  # $5 fee
+    
+    def __str__(self):
+        return "Canadian Current Account ($5 fee)"
+
+# Abstract Factory
+class BankFactory(ABC):
+    @abstractmethod
+    def create_savings_account(self) -> SavingsAccount:
+        pass
+    
+    @abstractmethod
+    def create_current_account(self) -> CurrentAccount:
+        pass
+
+# Concrete Factories
+class IndiaBankFactory(BankFactory):
+    def create_savings_account(self) -> SavingsAccount:
+        return IndiaSavingsAccount()
+    
+    def create_current_account(self) -> CurrentAccount:
+        return IndiaCurrentAccount()
+
+class CanadaBankFactory(BankFactory):
+    def create_savings_account(self) -> SavingsAccount:
+        return CanadaSavingsAccount()
+    
+    def create_current_account(self) -> CurrentAccount:
+        return CanadaCurrentAccount()
+
+# Client Code
+class BankBranch:
+    def __init__(self, factory: BankFactory):
+        self.savings_account = factory.create_savings_account()
+        self.current_account = factory.create_current_account()
+    
+    def show_accounts(self):
+        print(f"Savings: {self.savings_account}")
+        print(f"Current: {self.current_account}")
+
+# Usage
+print("India Branch Accounts:")
+india_branch = BankBranch(IndiaBankFactory())
+india_branch.show_accounts()
+
+print("\nCanada Branch Accounts:")
+canada_branch = BankBranch(CanadaBankFactory())
+canada_branch.show_accounts()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from abc import ABC, abstractmethod
+
 # Product Interfaces
 class Engine(ABC):
     @abstractmethod
