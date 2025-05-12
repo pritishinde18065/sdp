@@ -1,0 +1,90 @@
+class BankAccount:
+    def __init__(self, balance=0):
+        self.balance = balance
+
+    def withdraw(self, amount):
+        if amount > self.balance:
+            print("Insufficient funds")
+        else:
+            self.balance -= amount
+            print(f"Withdrew {amount}. Remaining balance: {self.balance}")
+
+    def deposit(self, amount):
+        self.balance += amount
+        print(f"Deposited {amount}. New balance: {self.balance}")
+
+class BankAccountProxy:
+    def __init__(self, account, authorized_user):
+        self.account = account
+        self.authorized_user = authorized_user
+
+    def withdraw(self, amount, user):
+        if user == self.authorized_user:
+            self.account.withdraw(amount)
+        else:
+            print("Unauthorized access")
+
+    def deposit(self, amount, user):
+        if user == self.authorized_user:
+            self.account.deposit(amount)
+        else:
+            print("Unauthorized access")
+
+
+account = BankAccount(1000)
+proxy = BankAccountProxy(account, "John")
+
+proxy.withdraw(500, "John")  # Authorized access
+proxy.withdraw(500, "Jane")  # Unauthorized access
+
+proxy.deposit(500, "John")  # Authorized access
+proxy.deposit(500, "Jane")
+
+
+
+
+
+
+
+import datetime
+
+
+class SlotMachine:
+    def spin(self):
+        return "Normal spin result"  # Actual slot machine logic
+
+
+class SlotMachineProxy:
+    def __init__(self, slotMachine):
+        self.slotMachine = slotMachine
+        self.maintenanceStart = datetime.time(2, 0)  # 2 AM
+        self.maintenanceEnd = datetime.time(6, 0)    # 6 AM
+
+
+    def spin(self):
+        currentTime = datetime.datetime.now().time()
+        if self.maintenanceStart <= currentTime < self.maintenanceEnd:
+            return "Under maintenance"
+        return self.slotMachine.spin()
+
+
+# Demonstration
+if __name__ == "__main__":
+    realMachine = SlotMachine()
+    proxy = SlotMachineProxy(realMachine)
+
+
+    # Test outside maintenance hours (allowed)
+    print("Test spin during working hours:")
+    print(proxy.spin())  # Normal spin
+
+
+    # Force maintenance mode for testing
+    print("\nTest during maintenance hours:")
+    oldStart = proxy.maintenanceStart
+    oldEnd = proxy.maintenanceEnd
+    proxy.maintenanceStart = datetime.time(0, 0)  # Temp: Always in maintenance
+    proxy.maintenanceEnd = datetime.time(23, 59)
+    print(proxy.spin())  # "Under maintenance"
+    proxy.maintenanceStart = oldStart  # Restore original times
+    proxy.maintenanceEnd = oldEnd
