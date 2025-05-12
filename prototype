@@ -1,0 +1,102 @@
+from abc import ABC, abstractmethod
+class SmartphonePrototype(ABC):
+    @abstractmethod
+    def clone(self):
+        pass
+class Smartphone(SmartphonePrototype):
+    def __init__(self, model, ram, storage, color):
+        self.model = model
+        self.ram = ram
+        self.storage = storage
+        self.color = color
+
+
+    def clone(self):
+        return Smartphone(self.model, self.ram, self.storage, self.color)
+
+
+    def display(self):
+        print(f"Model: {self.model}, RAM: {self.ram}, Storage: {self.storage}, Color: {self.color}")
+
+
+base_phone = Smartphone("Galaxy S24", "8GB", "256GB", "Matte Black")
+base_phone.display()
+
+custom_phone1 = base_phone.clone()
+custom_phone1.ram = "12GB"
+custom_phone1.color = "Silver"
+
+print("\nCustomized Phone 1:")
+custom_phone1.display()
+
+custom_phone2 = base_phone.clone()
+custom_phone2.storage = "512GB"
+
+print("\nCustomized Phone 2:")
+custom_phone2.display()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from abc import ABC, abstractmethod
+
+
+class EnemyPrototype(ABC):
+    @abstractmethod
+    def clone(self):
+        pass
+
+
+class Enemy(EnemyPrototype):
+    def __init__(self, enemy_type, health, attack_power, ai_behavior):
+        self.enemy_type = enemy_type
+        self.health = health
+        self.attack_power = attack_power
+        self.ai_behavior = ai_behavior
+
+
+    def clone(self):
+        return Enemy(self.enemy_type, self.health, self.attack_power, self.ai_behavior)
+
+
+    def display(self):
+        print(f"Type: {self.enemy_type}, Health: {self.health}, Attack: {self.attack_power}, AI: {self.ai_behavior}")
+
+
+# Create base enemy prototypes
+base_zombie = Enemy("Zombie", 100, 20, "Aggressive")
+base_zombie.display()
+
+
+# Create customized enemies by cloning
+custom_zombie1 = base_zombie.clone()
+custom_zombie1.health = 70
+custom_zombie1.ai_behavior = "Defensive"
+
+
+print("\nCustomized Zombie 1:")
+custom_zombie1.display()
+
+
+custom_zombie2 = base_zombie.clone()
+custom_zombie2.attack_power = 30
+custom_zombie2.health = 150
+
+
+print("\nCustomized Zombie 2:")
+custom_zombie2.display()
+
+
+
+
