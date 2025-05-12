@@ -1,4 +1,123 @@
 from abc import ABC, abstractmethod
+class Document(ABC):
+    @abstractmethod
+    def save(self):
+        pass
+class WordDocument(Document):
+    def save(self):
+        print("Saving as a Word document...")
+
+class PDFDocument(Document):
+    def save(self):
+        print("Saving as a PDF file...")
+
+class HTMLDocument(Document):
+    def save(self):
+        print("Saving as an HTML file...")
+class DocumentFactory(ABC):
+    @abstractmethod
+    def create_document(self) -> Document:
+        pass
+class WordDocumentFactory(DocumentFactory):
+    def create_document(self) -> Document:
+        return WordDocument()
+
+class PDFDocumentFactory(DocumentFactory):
+    def create_document(self) -> Document:
+        return PDFDocument()
+
+class HTMLDocumentFactory(DocumentFactory):
+    def create_document(self) -> Document:
+        return HTMLDocument()
+if __name__ == "__main__":
+    factories = {
+        "word": WordDocumentFactory(),
+        "pdf": PDFDocumentFactory(),
+        "html": HTMLDocumentFactory()
+    }
+
+    document_type = "pdf"
+    document = factories[document_type].create_document()
+    document.save()
+
+
+
+
+
+from abc import ABC, abstractmethod
+class Character(ABC):
+    @abstractmethod
+    def attack(self):
+        pass
+
+    @abstractmethod
+    def defend(self):
+        pass
+class Warrior(Character):
+    def attack(self):
+        print("Warrior swings sword!")
+
+    def defend(self):
+        print("Warrior blocks with shield!")
+
+class Mage(Character):
+    def attack(self):
+        print("Mage casts fireball!")
+
+    def defend(self):
+        print("Mage conjures magic barrier!")
+
+class Archer(Character):
+    def attack(self):
+        print("Archer shoots an arrow!")
+
+    def defend(self):
+        print("Archer dodges swiftly!")
+class CharacterFactory(ABC):
+    @abstractmethod
+    def create_character(self) -> Character:
+        pass
+class WarriorFactory(CharacterFactory):
+    def create_character(self) -> Character:
+        return Warrior()
+
+class MageFactory(CharacterFactory):
+    def create_character(self) -> Character:
+        return Mage()
+
+class ArcherFactory(CharacterFactory):
+    def create_character(self) -> Character:
+        return Archer()
+if __name__ == "__main__":
+    factories = {
+        "warrior": WarriorFactory(),
+        "mage": MageFactory(),
+        "archer": ArcherFactory()
+    }
+
+    character_type = "mage"
+    character = factories[character_type].create_character()
+    character.attack()
+    character.defend()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from abc import ABC, abstractmethod
 from typing import Dict, Type
 
 class Vehicle(ABC):
@@ -151,4 +270,132 @@ if __name__ == "__main__":
     four_wheeler_client = Client(four_wheeler_factory)
     four_wheeler = four_wheeler_client.get_vehicle()
     four_wheeler.print_vehicle()  # Output: I am four wheeler
+
+
+
+
+
+
+
+from abc import ABC, abstractmethod
+
+# Product Interface
+class Employee(ABC):
+    def __init__(self, base_salary: float, bonus: float):
+        self.base_salary = base_salary
+        self.bonus = bonus
     
+    @abstractmethod
+    def get_allowance(self) -> float:
+        pass
+    
+    def total_salary(self) -> float:
+        return self.base_salary + self.bonus + self.get_allowance()
+
+# Concrete Products
+class PermanentEmployee(Employee):
+    def __init__(self, base: float, bonus: float, hra: float):
+        super().__init__(base, bonus)
+        self.hra = hra
+    
+    def get_allowance(self) -> float:
+        return self.hra
+
+class ContractEmployee(Employee):
+    def __init__(self, base: float, bonus: float, medical: float):
+        super().__init__(base, bonus)
+        self.medical = medical
+    
+    def get_allowance(self) -> float:
+        return self.medical
+
+# Factory
+class EmployeeFactory:
+    _creators = {}
+    
+    @classmethod
+    def register(cls, emp_type: str, creator):
+        cls._creators[emp_type.lower()] = creator
+    
+    @classmethod
+    def create(cls, emp_type: str, *args) -> Employee:
+        creator = cls._creators.get(emp_type.lower())
+        if not creator:
+            raise ValueError(f"Unknown employee type: {emp_type}")
+        return creator(*args)
+
+# Register employee types
+EmployeeFactory.register("permanent", PermanentEmployee)
+EmployeeFactory.register("contract", ContractEmployee)
+
+# Client Code
+if __name__ == "__main__":
+    emp1 = EmployeeFactory.create("permanent", 50000, 10000, 15000)
+    emp2 = EmployeeFactory.create("contract", 40000, 5000, 8000)
+    
+    print(f"Permanent Employee: ${emp1.total_salary():,.2f}")
+    print(f"Contract Employee: ${emp2.total_salary():,.2f}")
+
+
+
+
+
+
+
+
+from abc import ABC, abstractmethod
+from typing import Dict, Type
+
+# Account Interface
+class BankAccount(ABC):
+    def __init__(self, initial_balance: float):
+        self.balance = initial_balance
+    
+    @abstractmethod
+    def calculate_balance(self) -> float:
+        pass
+
+# Concrete Accounts
+class SavingsAccount(BankAccount):
+    def __init__(self, initial_balance: float, interest_rate: float):
+        super().__init__(initial_balance)
+        self.interest_rate = interest_rate
+    
+    def calculate_balance(self) -> float:
+        return self.balance * (1 + self.interest_rate/100)
+
+class CheckingAccount(BankAccount):
+    def __init__(self, initial_balance: float, maintenance_fee: float):
+        super().__init__(initial_balance)
+        self.maintenance_fee = maintenance_fee
+    
+    def calculate_balance(self) -> float:
+        return self.balance - self.maintenance_fee
+
+# Factory
+class AccountFactory:
+    _creators: Dict[str, Type[BankAccount]] = {}
+    
+    @classmethod
+    def register_account(cls, account_type: str, creator: Type[BankAccount]):
+        cls._creators[account_type.lower()] = creator
+    
+    @classmethod
+    def create_account(cls, account_type: str, *args) -> BankAccount:
+        creator = cls._creators.get(account_type.lower())
+        if not creator:
+            raise ValueError(f"Unknown account type: {account_type}")
+        return creator(*args)
+
+# Register account types
+AccountFactory.register_account("savings", SavingsAccount)
+AccountFactory.register_account("checking", CheckingAccount)
+
+# Client Code
+if __name__ == "__main__":
+    # Create accounts without conditionals
+    savings = AccountFactory.create_account("savings", 1000.0, 2.5)  # $1000 at 2.5% interest
+    checking = AccountFactory.create_account("checking", 1000.0, 10.0)  # $1000 with $10 fee
+    
+    print(f"Savings Account Balance: ${savings.calculate_balance():.2f}")
+    print(f"Checking Account Balance: ${checking.calculate_balance():.2f}")
