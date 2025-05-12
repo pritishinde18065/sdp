@@ -1,0 +1,163 @@
+from abc import ABC, abstractmethod
+
+# Product Interfaces
+class Engine(ABC):
+    @abstractmethod
+    def get_type(self) -> str:
+        pass
+
+class Transmission(ABC):
+    @abstractmethod
+    def get_type(self) -> str:
+        pass
+
+class Brakes(ABC):
+    @abstractmethod
+    def get_type(self) -> str:
+        pass
+
+# Concrete Products
+class DieselEngine(Engine):
+    def get_type(self) -> str:
+        return "Diesel"
+
+class GasolineEngine(Engine):
+    def get_type(self) -> str:
+        return "Gasoline"
+
+class ManualTransmission(Transmission):
+    def get_type(self) -> str:
+        return "Manual"
+
+class AutomaticTransmission(Transmission):
+    def get_type(self) -> str:
+        return "Automatic"
+
+class DiscBrakes(Brakes):
+    def get_type(self) -> str:
+        return "Disc"
+
+class DrumBrakes(Brakes):
+    def get_type(self) -> str:
+        return "Drum"
+
+# Abstract Factory
+class VehicleComponentFactory(ABC):
+    @abstractmethod
+    def create_engine(self) -> Engine:
+        pass
+    
+    @abstractmethod
+    def create_transmission(self) -> Transmission:
+        pass
+    
+    @abstractmethod
+    def create_brakes(self) -> Brakes:
+        pass
+
+# Concrete Factories
+class EuropeanVehicle(VehicleComponentFactory):
+    def create_engine(self) -> Engine:
+        return DieselEngine()
+    
+    def create_transmission(self) -> Transmission:
+        return ManualTransmission()
+    
+    def create_brakes(self) -> Brakes:
+        return DiscBrakes()
+
+class NorthAmericanVehicle(VehicleComponentFactory):
+    def create_engine(self) -> Engine:
+        return GasolineEngine()
+    
+    def create_transmission(self) -> Transmission:
+        return AutomaticTransmission()
+    
+    def create_brakes(self) -> Brakes:
+        return DrumBrakes()
+
+# Client
+class Vehicle:
+    def __init__(self, factory: VehicleComponentFactory):
+        self.engine = factory.create_engine()
+        self.transmission = factory.create_transmission()
+        self.brakes = factory.create_brakes()
+    
+    def __str__(self):
+        return (f"Vehicle with {self.engine.get_type()} Engine, "
+                f"{self.transmission.get_type()} Transmission, and "
+                f"{self.brakes.get_type()} Brakes")
+
+# Usage
+if __name__ == "__main__":
+    european_factory = EuropeanVehicle()
+    european_vehicle = Vehicle(european_factory)
+    print(european_vehicle)
+    # Output: Vehicle with Diesel Engine, Manual Transmission, and Disc Brakes
+
+    north_american_factory = NorthAmericanVehicle()
+    north_american_vehicle = Vehicle(north_american_factory)
+    print(north_american_vehicle)
+    # Output: Vehicle with Gasoline Engine, Automatic Transmission, and Drum Brakes
+
+
+
+
+
+
+
+
+
+from abc import ABC, abstractmethod
+
+# Component Interfaces
+class Engine(ABC):
+    @abstractmethod
+    def specs(self): pass
+
+class Transmission(ABC):
+    @abstractmethod
+    def type(self): pass
+
+# Regional Implementations
+class EuropeanDieselEngine(Engine):
+    def specs(self): return "2.0L Turbo Diesel"
+
+class AmericanGasEngine(Engine):
+    def specs(self): return "5.0L V8 Gasoline"
+
+class EuropeanManualTrans(Transmission):
+    def type(self): return "6-speed Manual"
+
+class AmericanAutoTrans(Transmission):
+    def type(self): return "10-speed Automatic"
+
+# Abstract Factory
+class VehicleFactory(ABC):
+    @abstractmethod
+    def create_engine(self) -> Engine: pass
+    
+    @abstractmethod
+    def create_transmission(self) -> Transmission: pass
+
+# Concrete Factories
+class EuropeanTruckFactory(VehicleFactory):
+    def create_engine(self): return EuropeanDieselEngine()
+    def create_transmission(self): return EuropeanManualTrans()
+
+class AmericanCarFactory(VehicleFactory):
+    def create_engine(self): return AmericanGasEngine()
+    def create_transmission(self): return AmericanAutoTrans()
+
+# Client Code
+def build_vehicle(factory: VehicleFactory):
+    engine = factory.create_engine()
+    transmission = factory.create_transmission()
+    print(f"Built with {engine.specs()} engine and {transmission.type()}")
+
+# Usage
+build_vehicle(EuropeanTruckFactory()) 
+# Output: Built with 2.0L Turbo Diesel engine and 6-speed Manual
+
+build_vehicle(AmericanCarFactory())  
+# Output: Built with 5.0L V8 Gasoline engine and 10-speed Automatic
