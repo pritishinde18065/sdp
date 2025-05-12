@@ -1,0 +1,154 @@
+from abc import ABC, abstractmethod
+from typing import Dict, Type
+
+class Vehicle(ABC):
+    """Abstract base class for all vehicles"""
+    @abstractmethod
+    def start(self):
+        pass
+    
+    @abstractmethod
+    def stop(self):
+        pass
+
+class Car(Vehicle):
+    def start(self):
+        print("Car engine started. Vroom vroom!")
+    
+    def stop(self):
+        print("Car engine stopped.")
+
+class Truck(Vehicle):
+    def start(self):
+        print("Truck engine started. RUMBLE RUMBLE!")
+    
+    def stop(self):
+        print("Truck engine stopped.")
+
+class Motorcycle(Vehicle):
+    def start(self):
+        print("Motorcycle engine started. Vrooooom!")
+    
+    def stop(self):
+        print("Motorcycle engine stopped.")
+
+class VehicleFactory:
+    """Factory that dynamically creates vehicles without conditionals"""
+    _registry: Dict[str, Type[Vehicle]] = {}
+    
+    @classmethod
+    def register_vehicle(cls, name: str, vehicle_class: Type[Vehicle]):
+        """Register a new vehicle type"""
+        cls._registry[name.lower()] = vehicle_class
+    
+    @classmethod
+    def create_vehicle(cls, name: str) -> Vehicle:
+        """Create a vehicle of the specified type"""
+        vehicle_class = cls._registry.get(name.lower())
+        if vehicle_class is None:
+            raise ValueError(f"Unknown vehicle type: {name}")
+        return vehicle_class()
+
+# Register the default vehicle types
+VehicleFactory.register_vehicle("car", Car)
+VehicleFactory.register_vehicle("truck", Truck)
+VehicleFactory.register_vehicle("motorcycle", Motorcycle)
+
+def main():
+    # Example of runtime registration
+    class Bus(Vehicle):
+        def start(self):
+            print("Bus engine started. HONK HONK!")
+        
+        def stop(self):
+            print("Bus engine stopped.")
+    
+    VehicleFactory.register_vehicle("bus", Bus)
+    
+    # Interactive demo
+    print("Available vehicle types: car, truck, motorcycle, bus")
+    print("Enter vehicle type (or 'exit' to quit):")
+    
+    while True:
+        user_input = input("> ").strip()
+        
+        if user_input.lower() == "exit":
+            break
+        
+        try:
+            vehicle = VehicleFactory.create_vehicle(user_input)
+            print(f"Created a {user_input}")
+            vehicle.start()
+            vehicle.stop()
+        except ValueError as e:
+            print(f"Error: {e}")
+    
+    print("Goodbye!")
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+
+
+
+
+from abc import ABC, abstractmethod
+
+# Abstract Vehicle class
+class Vehicle(ABC):
+    @abstractmethod
+    def print_vehicle(self):
+        pass
+
+# Concrete Vehicle classes
+class TwoWheeler(Vehicle):
+    def print_vehicle(self):
+        print("I am two wheeler")
+
+class FourWheeler(Vehicle):
+    def print_vehicle(self):
+        print("I am four wheeler")
+
+# Factory Interface
+class VehicleFactory(ABC):
+    @abstractmethod
+    def create_vehicle(self) -> Vehicle:
+        pass
+
+# Concrete Factories
+class TwoWheelerFactory(VehicleFactory):
+    def create_vehicle(self) -> Vehicle:
+        return TwoWheeler()
+
+class FourWheelerFactory(VehicleFactory):
+    def create_vehicle(self) -> Vehicle:
+        return FourWheeler()
+
+# Client class
+class Client:
+    def __init__(self, factory: VehicleFactory):
+        self.vehicle = factory.create_vehicle()
+    
+    def get_vehicle(self) -> Vehicle:
+        return self.vehicle
+
+# Driver program
+if __name__ == "__main__":
+    # Create two-wheeler
+    two_wheeler_factory = TwoWheelerFactory()
+    two_wheeler_client = Client(two_wheeler_factory)
+    two_wheeler = two_wheeler_client.get_vehicle()
+    two_wheeler.print_vehicle()  # Output: I am two wheeler
+
+    # Create four-wheeler
+    four_wheeler_factory = FourWheelerFactory()
+    four_wheeler_client = Client(four_wheeler_factory)
+    four_wheeler = four_wheeler_client.get_vehicle()
+    four_wheeler.print_vehicle()  # Output: I am four wheeler
+    
