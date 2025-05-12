@@ -1,0 +1,57 @@
+from abc import ABC, abstractmethod
+
+# Implementation Hierarchy (Payment Processors)
+class PaymentProcessor(ABC):
+    @abstractmethod
+    def process_payment(self, amount: float) -> str:
+        pass
+
+class StripeProcessor(PaymentProcessor):
+    def process_payment(self, amount: float) -> str:
+        return f"Processed ${amount:.2f} via Stripe"
+
+class SquareProcessor(PaymentProcessor):
+    def process_payment(self, amount: float) -> str:
+        return f"Processed ${amount:.2f} via Square"
+
+class PayPalAPIProcessor(PaymentProcessor):
+    def process_payment(self, amount: float) -> str:
+        return f"Processed ${amount:.2f} via PayPal API"
+
+# Abstraction Hierarchy (Payment Methods)
+class PaymentMethod(ABC):
+    def __init__(self, processor: PaymentProcessor):
+        self.processor = processor  # Bridge between abstraction and implementation
+    
+    @abstractmethod
+    def pay(self, amount: float) -> str:
+        pass
+
+class CreditCard(PaymentMethod):
+    def pay(self, amount: float) -> str:
+        return f"Credit Card: {self.processor.process_payment(amount)}"
+
+class PayPal(PaymentMethod):
+    def pay(self, amount: float) -> str:
+        return f"PayPal: {self.processor.process_payment(amount)}"
+
+class Crypto(PaymentMethod):
+    def pay(self, amount: float) -> str:
+        return f"Crypto: {self.processor.process_payment(amount)}"
+
+# Client Code
+if __name__ == "__main__":
+    # Create processors (implementation)
+    stripe = StripeProcessor()
+    square = SquareProcessor()
+    paypal_api = PayPalAPIProcessor()
+
+    # Create payment methods with different processors
+    credit_card_stripe = CreditCard(stripe)
+    paypal_square = PayPal(square)
+    crypto_paypal = Crypto(paypal_api)
+
+    # Process payments
+    print(credit_card_stripe.pay(100.50))  # Credit Card: Processed $100.50 via Stripe
+    print(paypal_square.pay(75.25))       # PayPal: Processed $75.25 via Square
+    print(crypto_paypal.pay(200.00))      # Crypto: Processed $200.00 via PayPal API
