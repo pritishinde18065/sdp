@@ -1,0 +1,108 @@
+from enum import Enum
+
+class TicketType(Enum):
+    PASSWORD_RESET = "Password Reset"
+    FAQ = "FAQ"
+    code = "System runs very slow"
+    SOFTWARE_INSTALLATION = "Software Installation"
+    CONFIGURATION = "Configuration"
+    BUG = "Bug"
+    SYSTEM_FAILURE = "System Failure"
+    PERFORMANCE = "Performance Issue"
+
+
+# Ticket class
+class Ticket:
+    def __init__(self, ticket_type: TicketType, description: str):
+        self.type = ticket_type
+        self.description = description
+
+    def __str__(self):
+        return f"{self.type.value}: {self.description}"
+
+# Abstract handler
+class SupportHandler:
+    def __init__(self):
+        self._next_handler = None
+
+    def set_next_handler(self, handler):
+        self._next_handler = handler
+        return handler  # Allows chaining: handler1.set_next_handler(handler2).set_next...
+
+    def handle_request(self, ticket: Ticket):
+        if self._next_handler:
+            return self._next_handler.handle_request(ticket)
+        print(f"No handler available for: {ticket}")
+        return None
+
+# Concrete handlers
+class Level1Support(SupportHandler):
+    def handle_request(self, ticket: Ticket):
+        if ticket.type in [TicketType.PASSWORD_RESET, TicketType.FAQ]:
+            print(f"Level 1 Support handled ticket - {ticket}")
+            return True
+        else:
+            print(f"Level 1 cannot handle {ticket.type.value}, escalating...")
+            return super().handle_request(ticket)
+
+class Level2Support(SupportHandler):
+    def handle_request(self, ticket: Ticket):
+        if ticket.type in [TicketType.SOFTWARE_INSTALLATION, TicketType.CONFIGURATION]:
+            print(f"Level 2 Support handled ticket - {ticket}")
+            return True
+        else:
+            print(f"Level 2 cannot handle {ticket.type.value}, escalating...")
+            return super().handle_request(ticket)
+
+class Level3Support(SupportHandler):
+    def handle_request(self, ticket: Ticket):
+        if ticket.type in [TicketType.BUG, TicketType.SYSTEM_FAILURE]:
+            print(f"Level 3 Support handled ticket - {ticket}")
+            return True
+        else:
+            print(f"Level 3 cannot handle {ticket.type.value}, escalating to developers...")
+            return super().handle_request(ticket)
+
+class DevelopmentTeam(SupportHandler):
+    def handle_request(self, ticket: Ticket):
+      if ticket.type in [TicketType.PERFORMANCE]:
+            print(f"Development Support handled ticket - {ticket}")
+            return True
+      else:
+            print(f"Development cannot handle {ticket.type.value}, escalating to developers...")
+            return super().handle_request(ticket)
+
+        #print(f"Development Team is working on - {ticket}")
+        #return True
+
+# Client code
+def main():
+    # Create handlers
+    level1 = Level1Support()
+    level2 = Level2Support()
+    level3 = Level3Support()
+    dev_team = DevelopmentTeam()
+
+    # Build the chain (can also be done using the set_next_handler chaining)
+    level1.set_next_handler(level2)
+    level2.set_next_handler(level3)
+    level3.set_next_handler(dev_team)
+
+    # Create some tickets
+    tickets = [
+        Ticket(TicketType.PASSWORD_RESET, "Can't log in to my account"),
+        Ticket(TicketType.CONFIGURATION, "Need help setting up email"),
+        Ticket(TicketType.code, "System runs very slow"),
+        Ticket(TicketType.BUG, "Application crashes when clicking submit"),
+        Ticket(TicketType.PERFORMANCE, "System runs very slow during peak hours")
+
+    ]
+
+    # Process tickets
+    print("\n--- Processing Support Tickets ---")
+    for ticket in tickets:
+        print(f"\nNew ticket received: {ticket}")
+        level1.handle_request(ticket)
+
+if __name__ == "__main__":
+    main()
