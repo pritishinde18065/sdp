@@ -1,0 +1,191 @@
+from abc import ABC, abstractmethod
+
+
+class BookObserver(ABC):
+    @abstractmethod
+    def notify(self,book_name):
+        pass
+
+
+
+class LibraryBook:
+  def __init__(self,name):
+    self.name = name
+    self.available = False
+    self.observers = []
+
+  def add_observer(self, observer):
+    self.observers.append(observer)
+
+  def set_available(self,is_available):
+    if is_available and not self.available:
+      self.available = True
+      for observer in self.observers:
+        observer.notify(self.name)
+
+    else:
+      self.available = is_available
+
+
+
+class student(BookObserver):
+  def __init__(self,name):
+    self.name = name
+
+  def notify(self,book_name):
+    print(f"{self.name} :{book_name} is now available")
+
+
+
+# Test the implementation
+if __name__ == "__main__":
+    book = LibraryBook("Python Programming")
+
+    Priti = student(" Priti ")
+    Jyotsna= student(" Jyotsna")
+
+    book.add_observer( Priti )
+    book.add_observer( Jyotsna)
+
+    book.set_available(True)
+
+
+
+
+
+
+
+
+from abc import ABC, abstractmethod
+
+# Observer interface
+class StudentObserver(ABC):
+    @abstractmethod
+    def notify(self, timetable_update):
+        pass
+
+# Subject class
+class ExamTimeTable:
+    def __init__(self):
+        self.timetable = None
+        self.observers = []
+
+    def add_observer(self, observer):
+        self.observers.append(observer)
+
+    def update_timetable(self, new_timetable):
+        self.timetable = new_timetable
+        self.notify_all()
+
+    def notify_all(self):
+        for observer in self.observers:
+            observer.notify(self.timetable)
+
+# Concrete Observer class
+class Student(StudentObserver):
+    def __init__(self, name):
+        self.name = name
+
+    def notify(self, timetable_update):
+        print(f"{self.name}: New exam timetable updated!\n")
+        print(timetable_update)
+
+# Test the implementation
+if __name__ == "__main__":
+    # Create exam timetable subject
+    exam_timetable = ExamTimeTable()
+
+    # Create students
+    student1 = Student("Priti")
+    student2 = Student("Jyotsna")
+    student3 = Student("Ria")
+    student4 = Student("Bhargavi")
+
+    # Register students to receive updates
+    exam_timetable.add_observer(student1)
+    exam_timetable.add_observer(student2)
+    exam_timetable.add_observer(student3)
+    exam_timetable.add_observer(student4)
+
+    # Update the exam timetable
+    timetable_info = """FYMCS Semester 2 Exam Timetable:
+- 10-May-2025 (10:00 AM - 1:00 PM):  - Data Structures and Algorithms
+
+"""
+    exam_timetable.update_timetable(timetable_info)
+
+
+
+
+
+
+
+
+
+
+
+
+from abc import ABC, abstractmethod
+
+# Observer interface
+class StudentObserver(ABC):
+    @abstractmethod
+    def notify(self, timetable_update):
+        pass
+
+# Subject class
+class ExamTimeTable:
+    def __init__(self):
+        self.timetable = None
+        self.observers = []
+
+    def add_observer(self, observer):
+        self.observers.append(observer)
+
+    def remove_observer(self, observer):
+        if observer in self.observers:
+            self.observers.remove(observer)
+
+    def update_timetable(self, new_timetable):
+        self.timetable = new_timetable
+        self.notify_all()
+
+    def notify_all(self):
+        for observer in self.observers:
+            observer.notify(self.timetable)
+
+# Concrete Observer class
+class Student(StudentObserver):
+    def __init__(self, name):
+        self.name = name
+
+    def notify(self, timetable_update):
+        print(f"{self.name}: New exam timetable updated!\n")
+        print(timetable_update)
+
+# Test the implementation
+if __name__ == "__main__":
+    # Create exam timetable subject
+    exam_timetable = ExamTimeTable()
+
+    # Create students
+    student1 = Student("Priti")
+    student2 = Student("Jyotsna")
+    student3 = Student("Ria")
+    student4 = Student("Bhargavi")
+
+    # Register students to receive updates
+    exam_timetable.add_observer(student1)
+    exam_timetable.add_observer(student2)
+    exam_timetable.add_observer(student3)
+    exam_timetable.add_observer(student4)
+
+    # Remove one student
+    exam_timetable.remove_observer(student4)  # Bhargavi is removed
+    print("\nAfter removing Bhargavi:")
+
+    # Update the exam timetable
+    timetable_info = """FYMCS Semester 2 Exam Timetable:
+- 10-May-2025 (10:00 AM - 1:00 PM): Data Structures and Algorithms
+"""
+    exam_timetable.update_timetable(timetable_info)
