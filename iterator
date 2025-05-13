@@ -1,0 +1,279 @@
+from abc import ABC, abstractmethod
+from typing import Any, List
+
+# Iterator Interface
+class Iterator(ABC):
+    @abstractmethod
+    def has_next(self) -> bool:
+        pass
+
+    @abstractmethod
+    def next(self) -> Any:
+        pass
+
+# Aggregate Interface
+class IterableCollection(ABC):
+    @abstractmethod
+    def create_iterator(self) -> Iterator:
+        pass
+
+# Concrete Collection
+class ConcreteCollection(IterableCollection):
+    def __init__(self, items: List[Any]):
+        self._items = items
+
+    def create_iterator(self) -> Iterator:
+        return ConcreteIterator(self)
+
+    def count(self) -> int:
+        return len(self._items)
+
+    def get(self, index: int) -> Any:
+        return self._items[index]
+
+# Concrete Iterator
+class ConcreteIterator(Iterator):
+    def __init__(self, collection: ConcreteCollection):
+        self._collection = collection
+        self._index = 0
+
+    def has_next(self) -> bool:
+        return self._index < self._collection.count()
+
+    def next(self) -> Any:
+        item = self._collection.get(self._index)
+        self._index += 1
+        return item
+
+# Usage
+if __name__ == "__main__":
+    #data = [1,2,3,4,5]
+    data =[  [1, 2, 3],  [4, 5, 6],  [7, 8, 9]]
+    collection = ConcreteCollection(data)
+    iterator = collection.create_iterator()
+
+    while iterator.has_next():
+        print(iterator.next())
+        print(iterator.has_next())
+
+
+
+
+
+
+
+
+
+
+
+class TVChannelIterator:
+    def __init__(self, channels):
+        self.channels = channels
+        self.index = 0
+
+    def has_next(self):
+        return self.index < len(self.channels)
+
+    def next(self):
+        channel = self.channels[self.index]
+        self.index += 1
+        return channel
+
+
+channels = ["CNN", "BBC", "Discovery", "HBO"]
+remote = TVChannelIterator(channels)
+while remote.has_next():
+    print(f"Now watching: {remote.next()}")
+
+
+
+
+
+
+
+
+class ShuffleIterator:
+    def __init__(self, songs):
+        import random
+        self.songs = songs.copy()
+        random.shuffle(self.songs)
+        self.pos = 0
+
+    def has_next(self):
+        return self.pos < len(self.songs)
+
+    def next(self):
+        song = self.songs[self.pos]
+        self.pos += 1
+        return f" Now playing: {song}"
+
+
+playlist = ["Hakuna matata", "Believer", "Anthem"]
+player = ShuffleIterator(playlist)
+while player.has_next():
+    print(player.next())
+
+
+
+
+
+
+
+class DatabaseIterator:
+    def __init__(self, query, page_size=10):
+        self.query = query
+        self.page_size = page_size
+        self.offset = 0
+        self.current_batch = []
+
+    def has_next(self):
+        self._load_batch()
+        return len(self.current_batch) > 0
+
+    def next(self):
+        if not self.has_next():
+            raise StopIteration
+        return self.current_batch.pop(0)
+
+    def _load_batch(self):
+        if not self.current_batch:
+            # Simulate DB fetch (e.g., "SELECT ... LIMIT 10 OFFSET 20")
+            start = self.offset
+            end = start + self.page_size
+            self.current_batch = self.query[start:end]
+            self.offset = end
+
+
+fake_db = [f"Record_{i}" for i in range(1, 11)]  # 10 fake records
+paginator = DatabaseIterator(fake_db, page_size=15)
+while paginator.has_next():
+    print(f"Loaded: {paginator.next()}")
+
+
+
+
+
+
+
+
+
+
+
+import os
+
+class FileSystemIterator:
+    def __init__(self, root_dir):
+        self.stack = [root_dir]
+
+    def has_next(self):
+        return len(self.stack) > 0
+
+    def next(self):
+        while self.has_next():
+            path = self.stack.pop()
+            if os.path.isdir(path):
+                self.stack.extend(os.path.join(path, f) for f in os.listdir(path))
+            else:
+                return path
+        raise StopIteration
+
+# Usage
+file_iter = FileSystemIterator("/home/user/Documents")
+while file_iter.has_next():
+    print(f"Found file: {file_iter.next()}")
+
+
+
+
+
+
+
+
+
+from typing import List
+
+# Student class
+class Student:
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return f"Student Name: {self.name}"
+
+# Course class (each course has a list of students)
+class Course:
+    def __init__(self, name):
+        self.name = name
+        self.students: List[Student] = []
+
+    def add_student(self, student: Student):
+        self.students.append(student)
+
+    def get_students(self):
+        return self.students
+
+# Iterator to go over all students across all courses
+class StudentIterator:
+    def __init__(self, courses: List[Course]):
+        self.courses = courses
+        self.course_index = 0
+        self.student_index = 0
+
+    def has_next(self):
+        while self.course_index < len(self.courses):
+            if self.student_index < len(self.courses[self.course_index].get_students()):
+                return True
+            else:
+                self.course_index += 1
+                self.student_index = 0
+        return False
+
+    def next(self):
+        if self.has_next():
+            student = self.courses[self.course_index].get_students()[self.student_index]
+            self.student_index += 1
+            return student
+        else:
+            raise StopIteration
+
+# University class to manage all courses
+class University:
+    def __init__(self):
+        self.courses: List[Course] = []
+
+    def add_course(self, course: Course):
+        self.courses.append(course)
+
+    def get_student_iterator(self):
+        return StudentIterator(self.courses)
+
+# Client Code
+if __name__ == "__main__":
+    # Create Students
+    s1 = Student("Alice")
+    s2 = Student("Bob")
+    s3 = Student("Charlie")
+    s4 = Student("Diana")
+    s5 = Student("Ethan")
+
+    # Create Courses and add students
+    course_math = Course("Mathematics")
+    course_math.add_student(s1)
+    course_math.add_student(s2)
+
+    course_cs = Course("Computer Science")
+    course_cs.add_student(s3)
+    course_cs.add_student(s4)
+    course_cs.add_student(s5)
+
+    # University setup
+    university = University()
+    university.add_course(course_math)
+    university.add_course(course_cs)
+
+    # Admin views all students across courses using iterator
+    print("All registered students:")
+    iterator = university.get_student_iterator()
+    while iterator.has_next():
+        student = iterator.next()
+        print(student)
