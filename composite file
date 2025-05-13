@@ -1,0 +1,317 @@
+from abc import ABC, abstractmethod
+
+# Component interface
+class FileSystemComponent(ABC):
+    def __init__(self, name):
+        self.name = name
+
+    @abstractmethod
+    def display(self, indent=0):
+        pass
+
+    @abstractmethod
+    def get_size(self):
+        pass
+
+# Leaf class
+class File(FileSystemComponent):
+    def __init__(self, name, size):
+        super().__init__(name)
+        self.size = size
+
+    def display(self, indent=0):
+        print('  ' * indent + f" {self.name} ({self.size} KB)")
+
+    def get_size(self):
+        return self.size
+
+# Composite class
+class Directory(FileSystemComponent):
+    def __init__(self, name):
+        super().__init__(name)
+        self.children = []
+
+    def add(self, component):
+        self.children.append(component)
+
+    def remove(self, component):
+        self.children.remove(component)
+
+    def display(self, indent=0):
+        print('  ' * indent + f" {self.name}/ (total: {self.get_size()} KB)")
+        for child in self.children:
+            child.display(indent + 1)
+
+    def get_size(self):
+        total_size = 0
+        for child in self.children:
+            total_size += child.get_size()
+        return total_size
+
+# Client code
+if __name__ == "__main__":
+    # Create files
+    file1 = File("document.txt", 150)
+    file2 = File("image.jpg", 1200)
+    file3 = File("notes.txt", 50)
+    file4 = File("video.mp4", 4500)
+    file5 = File("config.ini", 2)
+
+    # Create directories
+    root = Directory("Root")
+    documents = Directory("Documents")
+    media = Directory("Media")
+    videos = Directory("Videos")
+    images = Directory("Images")
+
+    # Build the directory structure
+    root.add(file5)
+    root.add(documents)
+    root.add(media)
+
+    documents.add(file1)
+    documents.add(file3)
+
+    media.add(videos)
+    media.add(images)
+    media.add(file2)
+
+    videos.add(file4)
+
+    # Display the entire structure
+    root.display()
+
+
+
+
+
+
+
+
+
+
+
+
+  from abc import ABC, abstractmethod
+
+
+class Employee(ABC):
+    @abstractmethod
+    def add(self, employee: 'Employee') -> None:
+        pass
+    
+    @abstractmethod
+    def remove(self, employee: 'Employee') -> None:
+        pass
+    
+    @abstractmethod
+    def get_child(self, i: int) -> 'Employee':
+        pass
+    
+    @abstractmethod
+    def get_name(self) -> str:
+        pass
+    
+    @abstractmethod
+    def get_salary(self) -> float:
+        pass
+    
+    @abstractmethod
+    def print(self) -> None:
+        pass
+
+class Manager(Employee):
+    def __init__(self, name: str, salary: float):
+        self.name = name
+        self.salary = salary
+        self.employees: List[Employee] = []
+    
+    def add(self, employee: Employee) -> None:
+        self.employees.append(employee)
+    
+    def remove(self, employee: Employee) -> None:
+        self.employees.remove(employee)
+    
+    def get_child(self, i: int) -> Employee:
+        return self.employees[i]
+    
+    def get_name(self) -> str:
+        return self.name
+    
+    def get_salary(self) -> float:
+        return self.salary
+    
+    def print(self) -> None:
+       
+        print(f"Name = {self.get_name()}")
+        print(f"Salary = {self.get_salary()}")
+        print("-------------")
+        
+        for employee in self.employees:
+            employee.print()
+
+class Developer(Employee):
+    def __init__(self, name: str, salary: float):
+        self.name = name
+        self.salary = salary
+    
+    def add(self, employee: Employee) -> None:
+        print("Cannot add to a developer")
+    
+    def remove(self, employee: Employee) -> None:
+        print("Cannot remove from a developer")
+    
+    def get_child(self, i: int) -> Employee:
+        print("Developer has no subordinates")
+        return None
+    
+    def get_name(self) -> str:
+        return self.name
+    
+    def get_salary(self) -> float:
+        return self.salary
+    
+    def print(self) -> None:
+       
+        print(f"Name = {self.get_name()}")
+        print(f"Salary = {self.get_salary()}")
+        print("-------------")
+
+if __name__ == "__main__":
+    emp1 = Developer("John", 10000)
+    emp2 = Developer("David", 15000)
+    
+    manager1 = Manager("Daniel", 25000)
+    manager1.add(emp1)
+    manager1.add(emp2)
+    
+    emp3 = Developer("Michael", 20000)
+    
+    general_manager = Manager("Mark", 50000)
+    general_manager.add(emp3)
+    general_manager.add(manager1)
+    
+    general_manager.print()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  from abc import ABC, abstractmethod
+
+# Component Interface
+class EmployeeComponent(ABC):
+    def __init__(self, name):
+        self.name = name
+
+    @abstractmethod
+    def show_details(self):
+        pass
+
+    @abstractmethod
+    def get_salary(self):
+        pass
+
+# Leaf – Employee
+class Employee(EmployeeComponent):
+    def __init__(self, name, salary):
+        super().__init__(name)
+        self.salary = salary
+
+    def show_details(self):
+        print(f"Name: {self.name} and Salary: {self.salary}")
+
+    def get_salary(self):
+        return self.salary
+
+# Composite – Department
+class Department(EmployeeComponent):
+    def __init__(self, name):
+        super().__init__(name)
+        self.employees = []
+
+    def add(self, employee):
+        self.employees.append(employee)
+
+    def show_details(self):
+        for emp in self.employees:
+            emp.show_details()
+
+    def get_salary(self):
+        return sum(emp.get_salary() for emp in self.employees)
+
+    def get_employees(self):
+        return self.employees
+
+# Composite – Company
+class Company(EmployeeComponent):
+    def __init__(self, name):
+        super().__init__(name)
+        self.departments = []
+
+    def add(self, department):
+        self.departments.append(department)
+
+    def show_details(self):
+        # Step 1: Show all employees
+        all_employees = []
+        for dept in self.departments:
+            all_employees.extend(dept.get_employees())
+
+        for emp in all_employees:
+            emp.show_details()
+
+        # Step 2: Total salary of the company
+        print(f"\nTotal Salary of the Company: {self.get_salary()}\n")
+
+        # Step 3: Department-wise details
+        for dept in self.departments:
+            print(f"{dept.name} Employees")
+            dept.show_details()
+            print(f"Total salary of {dept.name}: {dept.get_salary()}")
+
+            # Step 4: Special output for HR Department
+            if dept.name == "HR Department":
+                # Find Priynaka and Rohit in all_employees
+                for emp in all_employees:
+                    if emp.name in ["Priynaka", "Rohit"]:
+                        print(f"Salary of {emp.name} is {emp.salary}")
+            print()
+
+    def get_salary(self):
+        return sum(dept.get_salary() for dept in self.departments)
+
+# Client Code
+if __name__ == "__main__":
+    # Employees
+    rohit = Employee("Rohit", 35000)
+    anurag = Employee("Anurag", 45000)
+    priynaka = Employee("Priynaka", 25000)
+    sambit = Employee("Sambit", 25000)
+
+    # Departments
+    it_department = Department("IT Department")
+    it_department.add(anurag)
+    it_department.add(rohit)
+
+    hr_department = Department("HR Department")
+    hr_department.add(priynaka)
+    hr_department.add(sambit)
+
+    # Company
+    company = Company("Company")
+    company.add(it_department)
+    company.add(hr_department)
+
+    # Display Full Details
+    company.show_details()
