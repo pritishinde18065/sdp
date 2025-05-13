@@ -1,0 +1,116 @@
+from typing import Dict, Protocol
+
+# Mediator interface
+class IChatRoom(Protocol):
+    def register(self, participant: 'Participant') -> None: ...
+    def send(self, from_: str, to: str, message: str) -> None: ...
+
+class ChatRoom(IChatRoom):
+    def __init__(self):
+        self._participants: Dict[str, 'Participant'] = {}
+
+    def register(self, participant: 'Participant') -> None:
+        if participant not in self._participants.values():
+            self._participants[participant.name] = participant
+            participant.chat_room = self
+
+    def send(self, from_: str, to: str, message: str) -> None:
+        participant = self._participants.get(to)
+        if participant is not None:
+            participant.receive(from_, message)
+
+# Colleague
+class Participant:
+    def __init__(self, name: str):
+        self.name = name
+        self.chat_room: IChatRoom = None
+
+    def send(self, to: str, message: str) -> None:
+        self.chat_room.send(self.name, to, message)
+
+    def receive(self, from_: str, message: str) -> None:
+        print(f"{from_} to {self.name}: '{message}'")
+
+# Client code
+if __name__ == "__main__":
+    chatroom = ChatRoom()
+
+    john = Participant("John")
+    jane = Participant("Jane")
+
+    chatroom.register(john)
+    chatroom.register(jane)
+
+    john.send("Jane", "Hey there!")
+    jane.send("John", "Hi John!")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from typing import Dict, Protocol, List
+
+# ================= Interfaces (Contracts) =================
+class IChatRoom(Protocol):
+    def register(self, participant: 'IParticipant') -> None: ...
+    def send(self, sender: 'IParticipant', to: str, message: str) -> None: ...
+
+class IParticipant(Protocol):
+    @property
+    def name(self) -> str: ...
+    def receive(self, sender: str, message: str) -> None: ...
+    def send(self, to: str, message: str) -> None: ...
+
+# ================= Concrete Implementations =================
+class ChatRoom(IChatRoom):
+    def __init__(self):
+        self._participants: Dict[str, IParticipant] = {}
+
+    def register(self, participant: IParticipant) -> None:
+        if participant.name not in self._participants:
+            self._participants[participant.name] = participant
+
+    def send(self, sender: IParticipant, to: str, message: str) -> None:
+        recipient = self._participants.get(to)
+        if recipient:
+            recipient.receive(sender.name, message)
+
+# ================= Participant (Colleague) =================
+class Participant(IParticipant):
+    def __init__(self, name: str, chat_room: IChatRoom):
+        self._name = name
+        self._chat_room = chat_room
+        self._chat_room.register(self)  # Auto-register on creation
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def receive(self, sender: str, message: str) -> None:
+        print(f"{sender} to {self._name}: '{message}'")
+
+    def send(self, to: str, message: str) -> None:
+        self._chat_room.send(self, to, message)
+
+# ================= Client Code =================
+if __name__ == "__main__":
+    chat_room = ChatRoom()
+
+    john = Participant("John", chat_room)
+    jane = Participant("Jane", chat_room)
+
+    john.send("Jane", "Hey there!")
+    jane.send("John", "Hi John!")
+    jane.receive("John","Hi Jane")
